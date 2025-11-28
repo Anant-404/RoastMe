@@ -6,10 +6,12 @@ export default function Home() {
   const { data: session } = useSession();
   const [roast, setRoast] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isRoastExpanded, setIsRoastExpanded] = useState(false);
 
   const handleRoast = async () => {
     setLoading(true);
     setRoast(null); // Reset previous roast
+    setIsRoastExpanded(false); // Collapse when fetching a new roast
 
     try {
       const res = await fetch("/api/roast", { method: "POST" });
@@ -111,7 +113,21 @@ export default function Home() {
                       </div>
                     )}
                     {!loading && roast && (
-                      <p className="text-2xl font-semibold leading-relaxed text-gray-50">“{roast}”</p>
+                      <div className="space-y-3">
+                        <p
+                          className={`text-xl font-semibold leading-relaxed text-gray-50 sm:text-2xl ${isRoastExpanded ? "" : "max-h-32 overflow-hidden text-ellipsis"} break-words`}
+                        >
+                          “{roast}”
+                        </p>
+                        {roast.length > 140 && (
+                          <button
+                            onClick={() => setIsRoastExpanded((prev) => !prev)}
+                            className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-200 underline underline-offset-4 hover:text-emerald-100"
+                          >
+                            {isRoastExpanded ? "Show less" : "Show full roast"}
+                          </button>
+                        )}
+                      </div>
                     )}
                     {!loading && !roast && (
                       <p className="text-base text-gray-300">Hit the button above to get your personalized roast delivered here.</p>
