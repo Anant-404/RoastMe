@@ -92,23 +92,29 @@ export default function Home() {
                   {loading ? "Roasting your taste..." : "Roast My Taste"}
                 </button>
 
-                <div className="rounded-xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 via-black/60 to-black/70 p-6 shadow-[0_10px_50px_rgba(0,0,0,.35)]">
-                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200">Latest verdict</p>
-                  <div className="mt-3 min-h-[140px] rounded-lg border border-white/5 bg-black/40 p-4">
+                <div className="rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 via-black/60 to-black/70 p-6 shadow-[0_10px_50px_rgba(0,0,0,.35)]">
+                  <div className="flex items-center justify-between text-sm text-emerald-100">
+                    <div className="flex items-center gap-2 font-semibold uppercase tracking-[0.2em]">
+                      <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(74,222,128,.9)]" />
+                      Roast verdict
+                    </div>
+                    <span className="text-emerald-200/80">{loading ? "Cooking..." : roast ? "Served hot" : "Awaiting order"}</span>
+                  </div>
+
+                  <div className="mt-4 rounded-xl border border-white/5 bg-black/40 p-5">
                     {loading && (
-                      <div className="space-y-3">
-                        <div className="h-3 w-24 rounded-full bg-emerald-400/30 animate-pulse" />
-                        <div className="h-3 w-11/12 rounded-full bg-white/10 animate-pulse" />
-                        <div className="h-3 w-4/5 rounded-full bg-white/10 animate-pulse" />
+                      <div className="flex items-center justify-between gap-3 text-sm text-gray-300">
+                        <span className="flex-1 text-left">Sharpening insults...</span>
+                        <span className="h-1 w-24 rounded-full bg-emerald-400/30">
+                          <span className="block h-1 w-16 animate-pulse rounded-full bg-emerald-400" />
+                        </span>
                       </div>
                     )}
                     {!loading && roast && (
-                      <p className="text-lg leading-relaxed text-gray-100">{roast}</p>
+                      <p className="text-2xl font-semibold leading-relaxed text-gray-50">“{roast}”</p>
                     )}
                     {!loading && !roast && (
-                      <p className="text-sm text-gray-400">
-                        No roast yet. Hit the button and we will deliver a fresh insult tailored to your playlists.
-                      </p>
+                      <p className="text-base text-gray-300">Hit the button above to get your personalized roast delivered here.</p>
                     )}
                   </div>
                 </div>
