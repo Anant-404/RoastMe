@@ -7,16 +7,22 @@ export default function Home() {
   const [roast, setRoast] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [isRoastExpanded, setIsRoastExpanded] = useState(false);
+  const [valoRoast, setValoRoast] = useState<string | null>(null);
+  const [valoLoading, setValoLoading] = useState(false);
+  const [valoError, setValoError] = useState<string | null>(null);
+  const [valoName, setValoName] = useState("");
+  const [valoTag, setValoTag] = useState("");
+  const [valoRegion, setValoRegion] = useState("na");
 
   const handleRoast = async () => {
     setLoading(true);
-    setRoast(null); // Reset previous roast
-    setIsRoastExpanded(false); // Collapse when fetching a new roast
+    setRoast(null);
+    setIsRoastExpanded(false);
 
     try {
       const res = await fetch("/api/roast", { method: "POST" });
       const data = await res.json();
-      
+
       if (data.roast) {
         setRoast(data.roast);
       } else {
@@ -25,9 +31,41 @@ export default function Home() {
     } catch (e) {
       setRoast("Something went wrong. Maybe your taste broke the internet.");
     }
-    
+
     setLoading(false);
   };
+
+  const handleValorantRoast = async () => {
+    setValoError(null);
+    setValoRoast(null);
+    setValoLoading(true);
+
+    if (!valoName || !valoTag) {
+      setValoError("Add your in-game name and tag first.");
+      setValoLoading(false);
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/roast-val", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: valoName, tag: valoTag, region: valoRegion }),
+      });
+      const data = await res.json();
+
+      if (res.ok && data.roast) {
+        setValoRoast(data.roast);
+      } else {
+        setValoError(data.error || "Could not fetch Valorant stats. Try again.");
+      }
+    } catch (err) {
+      setValoError("Valorant servers are dodging. Try once more.");
+    }
+
+    setValoLoading(false);
+  };
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-black via-slate-950 to-emerald-950 text-gray-100">
       <div className="pointer-events-none absolute inset-0">
@@ -44,9 +82,9 @@ export default function Home() {
               Roast Lab
             </p>
             <div className="space-y-2">
-              <h1 className="text-4xl font-black text-white sm:text-5xl">Let the AI roast your Spotify taste</h1>
+              <h1 className="text-4xl font-black text-white sm:text-5xl">Roasts for your playlists and your Valorant lobbies</h1>
               <p className="max-w-2xl text-base text-gray-300 sm:text-lg">
-                Sign in, hit roast, and brace for impact. We turn your listening history into a brutally honest headline.
+                Pick your poison: let us clown your Spotify history or flame your match stats. Everything is tuned for mobile so you can get roasted on the go.
               </p>
             </div>
           </div>
@@ -58,10 +96,10 @@ export default function Home() {
           )}
         </header>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <section className="space-y-6 rounded-2xl border border-white/10 bg-black/50 p-8 shadow-2xl backdrop-blur">
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+          <section className="space-y-6 rounded-2xl border border-white/10 bg-black/50 p-7 shadow-2xl backdrop-blur">
             <div className="flex items-center justify-between">
-              <p className="text-lg font-semibold text-white">Roast console</p>
+              <p className="text-lg font-semibold text-white">Spotify roast</p>
               <span className="flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-emerald-200">
                 <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(74,222,128,.9)]" />
                 {loading ? "Analyzing" : roast ? "Updated" : "Armed"}
@@ -117,7 +155,7 @@ export default function Home() {
                         <p
                           className={`text-xl font-semibold leading-relaxed text-gray-50 sm:text-2xl ${isRoastExpanded ? "" : "max-h-32 overflow-hidden text-ellipsis"} break-words`}
                         >
-                          “{roast}”
+                          "{roast}"
                         </p>
                         {roast.length > 140 && (
                           <button
@@ -151,27 +189,122 @@ export default function Home() {
             )}
           </section>
 
-          <aside className="space-y-4 rounded-2xl border border-white/10 bg-white/5 p-6 text-sm text-gray-200 shadow-xl backdrop-blur">
+          <section className="space-y-6 rounded-2xl border border-rose-200/20 bg-gradient-to-br from-[#1b0d12] via-black/60 to-[#0f0b14] p-7 shadow-2xl backdrop-blur">
+            <div className="flex items-center justify-between">
+              <p className="text-lg font-semibold text-white">Valorant roast</p>
+              <span className="flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-rose-200">
+                <span className={`h-2 w-2 rounded-full ${valoLoading ? "bg-rose-400" : "bg-emerald-400"} shadow-[0_0_10px_rgba(244,63,94,.8)]`} />
+                {valoLoading ? "Analyzing" : valoRoast ? "Updated" : "Ready"}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-xs uppercase tracking-[0.25em] text-rose-200">Riot ID</label>
+                <input
+                  value={valoName}
+                  onChange={(e) => setValoName(e.target.value)}
+                  placeholder="e.g. TenZ"
+                  className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none ring-rose-400/30 focus:border-rose-400 focus:ring-2"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs uppercase tracking-[0.25em] text-rose-200">Tag</label>
+                <input
+                  value={valoTag}
+                  onChange={(e) => setValoTag(e.target.value)}
+                  placeholder="e.g. 001"
+                  className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none ring-rose-400/30 focus:border-rose-400 focus:ring-2"
+                />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <label className="text-xs uppercase tracking-[0.25em] text-rose-200">Region</label>
+                <select
+                  value={valoRegion}
+                  onChange={(e) => setValoRegion(e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-black px-4 py-3 text-sm text-white outline-none ring-rose-400/30 focus:border-rose-400 focus:ring-2"
+                >
+                  <option value="na">NA</option>
+                  <option value="eu">EU</option>
+                  <option value="ap">AP</option>
+                  <option value="kr">KR</option>
+                </select>
+              </div>
+            </div>
+
+            <button
+              onClick={handleValorantRoast}
+              disabled={valoLoading}
+              className="group relative inline-flex w-full items-center justify-center gap-3 overflow-hidden rounded-xl bg-gradient-to-r from-rose-500 via-rose-400 to-orange-400 px-6 py-4 text-lg font-semibold text-white transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-80"
+            >
+              <span className="absolute inset-0 -z-10 bg-white/20 opacity-0 blur-2xl transition group-hover:opacity-100" />
+              {valoLoading && <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/60 border-t-transparent" />}
+              {valoLoading ? "Flaming your stats..." : "Roast my Valorant"}
+            </button>
+
+            <div className="rounded-2xl border border-rose-400/30 bg-black/40 p-6">
+            <div className="flex items-center justify-between text-sm text-rose-100">
+              <div className="flex items-center gap-2 font-semibold uppercase tracking-[0.2em]">
+                <span className="h-2.5 w-2.5 rounded-full bg-rose-400 shadow-[0_0_12px_rgba(244,63,94,.9)]" />
+                Match verdict
+              </div>
+              <span className="text-rose-100/80">{valoLoading ? "Cooking..." : valoRoast ? "Served hot" : "Awaiting order"}</span>
+            </div>
+
+            <div className="mt-4 rounded-xl border border-white/10 bg-black/60 p-4">
+              {valoLoading && (
+                <div className="space-y-3 text-sm text-rose-100">
+                  <div className="h-3 w-5/6 rounded-full bg-rose-400/30 animate-pulse" />
+                  <div className="h-3 w-3/4 rounded-full bg-rose-400/20 animate-pulse" />
+                </div>
+              )}
+              {!valoLoading && valoError && (
+                <p className="text-sm text-rose-200">{valoError}</p>
+              )}
+              {!valoLoading && valoRoast && (
+                <div className="space-y-2">
+                  <p className="text-base font-semibold leading-relaxed text-rose-50">
+                    "{valoRoast}"
+                  </p>
+                  <button
+                    onClick={() => setValoRoast(null)}
+                    className="text-xs font-semibold uppercase tracking-[0.2em] text-rose-200 underline underline-offset-4 hover:text-rose-100"
+                  >
+                    Clear
+                  </button>
+                </div>
+              )}
+              {!valoLoading && !valoRoast && !valoError && (
+                <p className="text-sm text-gray-300">Drop your Riot ID and tag to get a lobby-ready roast without endless scrolling.</p>
+              )}
+            </div>
+            </div>
+          </section>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="rounded-xl border border-white/10 bg-white/5 p-5 text-sm text-gray-200 shadow-xl backdrop-blur">
             <p className="text-base font-semibold text-white">What you are getting</p>
-            <ul className="space-y-3">
+            <ul className="mt-3 space-y-2">
               <li className="flex items-start gap-3">
                 <span className="mt-1 h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(74,222,128,.7)]" />
-                Brutally honest one-liners generated live from your listening habits.
+                Brutally honest one-liners for your Spotify history and Valorant matches.
               </li>
               <li className="flex items-start gap-3">
                 <span className="mt-1 h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(74,222,128,.7)]" />
-                A clean, cinematic layout that highlights each roast when it lands.
+                Responsive cards that keep roasts tight on mobile with expand toggles only when needed.
               </li>
               <li className="flex items-start gap-3">
                 <span className="mt-1 h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(74,222,128,.7)]" />
-                Quick sign-in / sign-out controls without leaving the roast flow.
+                Clear status chips so you know when a roast is cooking or ready.
               </li>
             </ul>
-            <div className="rounded-xl border border-white/10 bg-black/50 p-4">
-              <p className="text-xs uppercase tracking-[0.25em] text-emerald-200">Pro tip</p>
-              <p className="mt-2 text-gray-300">Queue your most-played playlist before hitting roast for maximum accuracy.</p>
-            </div>
-          </aside>
+          </div>
+
+          <div className="rounded-xl border border-white/10 bg-black/50 p-5 text-sm text-gray-200 shadow-xl backdrop-blur">
+            <p className="text-xs uppercase tracking-[0.25em] text-emerald-200">Pro tips</p>
+            <p className="mt-3 text-gray-300">Queue your most-played playlist before hitting Spotify roast. For Valorant, include the correct tag and region to avoid missing stats.</p>
+          </div>
         </div>
       </main>
     </div>
