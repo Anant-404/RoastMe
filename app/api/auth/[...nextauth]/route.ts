@@ -9,7 +9,11 @@ export const authOptions: AuthOptions = {
       clientSecret: process.env.SPOTIFY_CLIENT_SECRET!,
       authorization: {
         // These scopes allow you to read their private listening history
-        params: { scope: "user-read-recently-played user-top-read" },
+        // show_dialog forces Spotify to show the account switcher so users can pick a different profile
+        params: {
+          scope: "user-read-recently-played user-top-read",
+          show_dialog: true,
+        },
       },
     }),
   ],
