@@ -7,12 +7,20 @@ export default function Home() {
   const [roast, setRoast] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [isRoastExpanded, setIsRoastExpanded] = useState(false);
+
+  // Valorant State
   const [valoRoast, setValoRoast] = useState<string | null>(null);
   const [valoLoading, setValoLoading] = useState(false);
   const [valoError, setValoError] = useState<string | null>(null);
   const [valoName, setValoName] = useState("");
   const [valoTag, setValoTag] = useState("");
   const [valoRegion, setValoRegion] = useState("na");
+
+  // Steam State
+  const [steamRoast, setSteamRoast] = useState<string | null>(null);
+  const [steamLoading, setSteamLoading] = useState(false);
+  const [steamError, setSteamError] = useState<string | null>(null);
+  const [steamInput, setSteamInput] = useState("");
 
   const handleRoast = async () => {
     setLoading(true);
@@ -66,6 +74,37 @@ export default function Home() {
     setValoLoading(false);
   };
 
+  const handleSteamRoast = async () => {
+    setSteamError(null);
+    setSteamRoast(null);
+    setSteamLoading(true);
+
+    if (!steamInput) {
+      setSteamError("Enter your Steam ID or URL first.");
+      setSteamLoading(false);
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/roast-steam", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ steamInput }),
+      });
+      const data = await res.json();
+
+      if (res.ok && data.roast) {
+        setSteamRoast(data.roast);
+      } else {
+        setSteamError(data.error || "Could not fetch Steam data. Check your ID/URL.");
+      }
+    } catch (err) {
+      setSteamError("Steam servers are offline (classic). Try again.");
+    }
+
+    setSteamLoading(false);
+  };
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-black via-slate-950 to-emerald-950 text-gray-100">
       <div className="pointer-events-none absolute inset-0">
@@ -74,7 +113,7 @@ export default function Home() {
         <div className="absolute bottom-0 left-1/3 h-80 w-80 rounded-full bg-sky-400/10 blur-[120px]" />
       </div>
 
-      <main className="relative z-10 mx-auto flex max-w-5xl flex-col gap-10 px-6 py-14 lg:px-10">
+      <main className="relative z-10 mx-auto flex max-w-7xl flex-col gap-12 px-6 py-16 lg:px-12">
         <header className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-3">
             <p className="inline-flex items-center gap-2 rounded-full bg-white/5 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-200 ring-1 ring-white/10">
@@ -82,9 +121,9 @@ export default function Home() {
               Roast Lab
             </p>
             <div className="space-y-2">
-              <h1 className="text-4xl font-black text-white sm:text-5xl">Roasts for your playlists and your Valorant lobbies</h1>
+              <h1 className="text-4xl font-black text-white sm:text-5xl">Roasts for your playlists and your lobbies</h1>
               <p className="max-w-2xl text-base text-gray-300 sm:text-lg">
-                Pick your poison: let us clown your Spotify history or flame your match stats. Everything is tuned for mobile so you can get roasted on the go.
+                Pick your poison: let us clown your Spotify history, flame your Valorant stats, or mock your Steam library.
               </p>
             </div>
           </div>
@@ -96,8 +135,9 @@ export default function Home() {
           )}
         </header>
 
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-          <section className="space-y-6 rounded-2xl border border-white/10 bg-black/50 p-7 shadow-2xl backdrop-blur">
+        <div className="grid grid-cols-1 gap-8 xl:grid-cols-3 xl:gap-10">
+          {/* Spotify Section */}
+          <section className="flex h-full min-h-[540px] flex-col space-y-6 rounded-2xl border border-white/10 bg-black/50 p-8 shadow-2xl backdrop-blur">
             <div className="flex items-center justify-between">
               <p className="text-lg font-semibold text-white">Spotify roast</p>
               <span className="flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-emerald-200">
@@ -189,7 +229,8 @@ export default function Home() {
             )}
           </section>
 
-          <section className="space-y-6 rounded-2xl border border-rose-200/20 bg-gradient-to-br from-[#1b0d12] via-black/60 to-[#0f0b14] p-7 shadow-2xl backdrop-blur">
+          {/* Valorant Section */}
+          <section className="flex h-full min-h-[540px] flex-col space-y-6 rounded-2xl border border-rose-200/20 bg-gradient-to-br from-[#1b0d12] via-black/60 to-[#0f0b14] p-8 shadow-2xl backdrop-blur">
             <div className="flex items-center justify-between">
               <p className="text-lg font-semibold text-white">Valorant roast</p>
               <span className="flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-rose-200">
@@ -243,41 +284,131 @@ export default function Home() {
             </button>
 
             <div className="rounded-2xl border border-rose-400/30 bg-black/40 p-6">
-            <div className="flex items-center justify-between text-sm text-rose-100">
-              <div className="flex items-center gap-2 font-semibold uppercase tracking-[0.2em]">
-                <span className="h-2.5 w-2.5 rounded-full bg-rose-400 shadow-[0_0_12px_rgba(244,63,94,.9)]" />
-                Match verdict
+              <div className="flex items-center justify-between text-sm text-rose-100">
+                <div className="flex items-center gap-2 font-semibold uppercase tracking-[0.2em]">
+                  <span className="h-2.5 w-2.5 rounded-full bg-rose-400 shadow-[0_0_12px_rgba(244,63,94,.9)]" />
+                  Match verdict
+                </div>
+                <span className="text-rose-100/80">{valoLoading ? "Cooking..." : valoRoast ? "Served hot" : "Awaiting order"}</span>
               </div>
-              <span className="text-rose-100/80">{valoLoading ? "Cooking..." : valoRoast ? "Served hot" : "Awaiting order"}</span>
+
+              <div className="mt-4 rounded-xl border border-white/10 bg-black/60 p-4">
+                {valoLoading && (
+                  <div className="space-y-3 text-sm text-rose-100">
+                    <div className="h-3 w-5/6 rounded-full bg-rose-400/30 animate-pulse" />
+                    <div className="h-3 w-3/4 rounded-full bg-rose-400/20 animate-pulse" />
+                  </div>
+                )}
+                {!valoLoading && valoError && (
+                  <p className="text-sm text-rose-200">{valoError}</p>
+                )}
+                {!valoLoading && valoRoast && (
+                  <div className="space-y-2">
+                    <p className="text-base font-semibold leading-relaxed text-rose-50">
+                      "{valoRoast}"
+                    </p>
+                    <button
+                      onClick={() => setValoRoast(null)}
+                      className="text-xs font-semibold uppercase tracking-[0.2em] text-rose-200 underline underline-offset-4 hover:text-rose-100"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                )}
+                {!valoLoading && !valoRoast && !valoError && (
+                  <p className="text-sm text-gray-300">Drop your Riot ID and tag to get a lobby-ready roast without endless scrolling.</p>
+                )}
+              </div>
+            </div>
+          </section>
+
+          {/* Steam Section */}
+          <section className="flex h-full min-h-[540px] flex-col space-y-7 rounded-2xl border border-blue-200/20 bg-gradient-to-br from-[#0b1016] via-black/60 to-[#0e141b] p-8 shadow-2xl backdrop-blur">
+            <div className="flex items-center justify-between">
+              <p className="text-lg font-semibold text-white">Steam roast</p>
+              <span className="flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-blue-200">
+                <span className={`h-2 w-2 rounded-full ${steamLoading ? "bg-blue-400" : "bg-emerald-400"} shadow-[0_0_10px_rgba(96,165,250,.8)]`} />
+                {steamLoading ? "Analyzing" : steamRoast ? "Updated" : "Ready"}
+              </span>
             </div>
 
-            <div className="mt-4 rounded-xl border border-white/10 bg-black/60 p-4">
-              {valoLoading && (
-                <div className="space-y-3 text-sm text-rose-100">
-                  <div className="h-3 w-5/6 rounded-full bg-rose-400/30 animate-pulse" />
-                  <div className="h-3 w-3/4 rounded-full bg-rose-400/20 animate-pulse" />
-                </div>
-              )}
-              {!valoLoading && valoError && (
-                <p className="text-sm text-rose-200">{valoError}</p>
-              )}
-              {!valoLoading && valoRoast && (
-                <div className="space-y-2">
-                  <p className="text-base font-semibold leading-relaxed text-rose-50">
-                    "{valoRoast}"
-                  </p>
-                  <button
-                    onClick={() => setValoRoast(null)}
-                    className="text-xs font-semibold uppercase tracking-[0.2em] text-rose-200 underline underline-offset-4 hover:text-rose-100"
-                  >
-                    Clear
-                  </button>
-                </div>
-              )}
-              {!valoLoading && !valoRoast && !valoError && (
-                <p className="text-sm text-gray-300">Drop your Riot ID and tag to get a lobby-ready roast without endless scrolling.</p>
-              )}
+            <div className="space-y-4 rounded-xl border border-blue-500/20 bg-gradient-to-br from-white/5 via-white/0 to-white/5 p-5">
+              <div className="flex items-center justify-between text-xs uppercase tracking-[0.25em] text-blue-100">
+                <span className="inline-flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_12px_rgba(103,232,249,.8)]" />
+                  Quick scan
+                </span>
+                <span className="rounded-full bg-white/5 px-2 py-1 text-[0.65rem] font-semibold text-cyan-100 ring-1 ring-white/10">
+                  Public profile works best
+                </span>
+              </div>
+              <div className="space-y-3">
+                <label className="text-xs uppercase tracking-[0.25em] text-blue-200">Steam ID or URL</label>
+                <input
+                  value={steamInput}
+                  onChange={(e) => setSteamInput(e.target.value)}
+                  placeholder="e.g. 76561198000000000 or https://steamcommunity.com/id/..."
+                  className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none ring-blue-400/30 transition focus:border-blue-400 focus:ring-2"
+                />
+                <button
+                  onClick={handleSteamRoast}
+                  disabled={steamLoading}
+                  className="group relative inline-flex w-full items-center justify-center gap-3 overflow-hidden rounded-lg bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400 px-5 py-3 text-sm font-semibold text-white shadow-lg transition hover:translate-y-[-1px] disabled:cursor-not-allowed disabled:opacity-80"
+                >
+                  <span className="absolute inset-0 -z-10 bg-white/20 opacity-0 blur-2xl transition group-hover:opacity-100" />
+                  {steamLoading && <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/60 border-t-transparent" />}
+                  {steamLoading ? "Scanning..." : "Roast my Steam"}
+                </button>
+                <p className="text-xs text-blue-100/70">Paste a profile link or 64-bit ID. We will pull your hours, shame pile, and deliver the verdict.</p>
+              </div>
             </div>
+
+            <div className="flex-1 rounded-2xl border border-blue-400/30 bg-black/50 p-6 shadow-[0_10px_40px_rgba(0,0,0,.45)]">
+              <div className="flex items-center justify-between text-sm text-blue-100">
+                <div className="flex items-center gap-2 font-semibold uppercase tracking-[0.2em]">
+                  <span className="h-2.5 w-2.5 rounded-full bg-blue-400 shadow-[0_0_12px_rgba(96,165,250,.9)]" />
+                  Library verdict
+                </div>
+                <span className="rounded-full bg-white/5 px-3 py-1 text-xs text-blue-100/80 ring-1 ring-white/10">{steamLoading ? "Cooking..." : steamRoast ? "Served hot" : "Awaiting order"}</span>
+              </div>
+
+              <div className="mt-4 space-y-4 rounded-xl border border-white/10 bg-black/60 p-5">
+                {steamLoading && (
+                  <div className="space-y-3 text-sm text-blue-100">
+                    <div className="h-3 w-5/6 rounded-full bg-blue-400/30 animate-pulse" />
+                    <div className="h-3 w-3/4 rounded-full bg-blue-400/20 animate-pulse" />
+                    <div className="h-3 w-2/3 rounded-full bg-blue-400/10 animate-pulse" />
+                  </div>
+                )}
+                {!steamLoading && steamError && (
+                  <div className="flex items-start gap-3 rounded-lg border border-blue-500/20 bg-blue-500/10 px-3 py-2 text-sm text-blue-100">
+                    <span className="mt-1 h-2 w-2 rounded-full bg-blue-300 shadow-[0_0_8px_rgba(59,130,246,.8)]" />
+                    <p>{steamError}</p>
+                  </div>
+                )}
+                {!steamLoading && steamRoast && (
+                  <div className="space-y-3">
+                    <p className="text-base font-semibold leading-relaxed text-blue-50">
+                      "{steamRoast}"
+                    </p>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <button
+                        onClick={() => setSteamRoast(null)}
+                        className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-200 underline underline-offset-4 hover:text-blue-100"
+                      >
+                        Clear
+                      </button>
+                      <span className="rounded-full bg-white/5 px-3 py-1 text-[0.7rem] uppercase tracking-[0.2em] text-blue-100 ring-1 ring-white/10">Fresh</span>
+                    </div>
+                  </div>
+                )}
+                {!steamLoading && !steamRoast && !steamError && (
+                  <div className="space-y-2 text-sm text-gray-300">
+                    <p>Paste your Steam profile link or ID to find out what your pile of shame says about you.</p>
+                    <p className="text-blue-100/80">Tip: Set game details to public so we can roast your hours properly.</p>
+                  </div>
+                )}
+              </div>
             </div>
           </section>
         </div>
@@ -288,7 +419,7 @@ export default function Home() {
             <ul className="mt-3 space-y-2">
               <li className="flex items-start gap-3">
                 <span className="mt-1 h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(74,222,128,.7)]" />
-                Brutally honest one-liners for your Spotify history and Valorant matches.
+                Brutally honest one-liners for your Spotify history, Valorant matches, and Steam library.
               </li>
               <li className="flex items-start gap-3">
                 <span className="mt-1 h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(74,222,128,.7)]" />
@@ -303,7 +434,7 @@ export default function Home() {
 
           <div className="rounded-xl border border-white/10 bg-black/50 p-5 text-sm text-gray-200 shadow-xl backdrop-blur">
             <p className="text-xs uppercase tracking-[0.25em] text-emerald-200">Pro tips</p>
-            <p className="mt-3 text-gray-300">Queue your most-played playlist before hitting Spotify roast. For Valorant, include the correct tag and region to avoid missing stats.</p>
+            <p className="mt-3 text-gray-300">Queue your most-played playlist before hitting Spotify roast. For Valorant, include the correct tag. For Steam, make sure your game details are public.</p>
           </div>
         </div>
       </main>
