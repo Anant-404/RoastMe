@@ -297,7 +297,7 @@ export default function Home() {
     {
       key: "spotify" as const,
       title: "Spotify taste roast",
-      emoji: "SP",
+      logo: "/spotify-logo.png",
       gradient: "from-emerald-500/25 via-emerald-500/10 to-teal-500/15",
       border: "border-emerald-400/30",
       status: !session ? "Sign in to unlock" : loading ? "Cooking..." : roast ? "Served hot" : "Armed",
@@ -307,7 +307,7 @@ export default function Home() {
     {
       key: "valorant" as const,
       title: "Valorant stat roast",
-      emoji: "VL",
+      logo: "/valorant.png",
       gradient: "from-rose-500/25 via-rose-500/10 to-orange-400/15",
       border: "border-rose-400/30",
       status: valoLoading ? "Analyzing..." : valoRoast ? "Served hot" : "Ready",
@@ -317,7 +317,7 @@ export default function Home() {
     {
       key: "steam" as const,
       title: "Steam library roast",
-      emoji: "ST",
+      logo: "/steam.png",
       gradient: "from-blue-500/25 via-blue-500/10 to-cyan-400/15",
       border: "border-blue-400/30",
       status: steamLoading ? "Analyzing..." : steamRoast ? "Served hot" : "Ready",
@@ -327,7 +327,7 @@ export default function Home() {
     {
       key: "chess" as const,
       title: "Chess.com roast",
-      emoji: "CH",
+      logo: "/chess.png",
       gradient: "from-amber-500/25 via-amber-500/10 to-yellow-500/15",
       border: "border-amber-400/30",
       status: chessLoading ? "Analyzing..." : chessRoast ? "Served hot" : "Ready",
@@ -337,7 +337,7 @@ export default function Home() {
     {
       key: "csgo" as const,
       title: "CSGO stats roast",
-      emoji: "CS",
+      logo: "/csgo.png",
       gradient: "from-yellow-500/25 via-orange-500/10 to-amber-500/15",
       border: "border-yellow-400/30",
       status: csgoLoading ? "Analyzing..." : csgoRoast ? "Served hot" : "Ready",
@@ -347,7 +347,7 @@ export default function Home() {
     {
       key: "genshin" as const,
       title: "Genshin roast",
-      emoji: "GI",
+      logo: "/genshin.png",
       gradient: "from-purple-500/25 via-purple-500/10 to-indigo-500/15",
       border: "border-purple-400/30",
       status: genshinLoading ? "Analyzing..." : genshinRoast ? "Served hot" : "Ready",
@@ -357,7 +357,7 @@ export default function Home() {
     {
       key: "leetcode" as const,
       title: "LeetCode roast",
-      emoji: "LC",
+      logo: "/code.png",
       gradient: "from-green-500/25 via-emerald-500/10 to-lime-500/15",
       border: "border-green-400/30",
       status: leetLoading ? "Analyzing..." : leetRoast ? "Served hot" : "Ready",
@@ -367,7 +367,7 @@ export default function Home() {
     {
       key: "github" as const,
       title: "GitHub roast",
-      emoji: "GH",
+      logo: "/github.png",
       gradient: "from-slate-500/25 via-slate-500/10 to-cyan-500/15",
       border: "border-slate-400/30",
       status: githubLoading ? "Analyzing..." : githubRoast ? "Served hot" : "Ready",
@@ -441,7 +441,9 @@ export default function Home() {
                   <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-white/5 blur-3xl" />
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-black/40 text-xl">{card.emoji}</span>
+                      <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white/10 p-2.5 backdrop-blur-sm ring-1 ring-white/20">
+                        <img src={card.logo} alt={card.title} className="h-full w-full object-contain drop-shadow-md" />
+                      </div>
                       <div>
                         <p className="text-xs uppercase tracking-[0.3em] text-white/70">Roast card</p>
                         <p className="text-lg font-semibold text-white">{card.title}</p>
